@@ -1,0 +1,27 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Misson",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["results/finland_hres_oceancolor.h5", "results/traj_finland_hres_oceancolor_new.h5",
+                     "1618610399", "MAT", "--kernel_params", "44.29588721", "0.54654887", "0.26656638"], 
+            "justMyCode": true
+        },
+        {
+            "name": "Plot Results",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["results/traj_finland_hres_oceancolor_new.h5", "--pdf"], 
+            "justMyCode": true
+        }
+    ]
+}

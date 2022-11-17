@@ -1,0 +1,8 @@
+{
+    "ll": [61.85, 20.6],
+    "ur": [62.55, 21.03],
+    "dx": 25,
+    "start_date": 1583020800,
+    "end_date": 1583280000,
+    "dataset_source": "forecast"
+}
