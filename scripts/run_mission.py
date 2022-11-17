@@ -50,7 +50,7 @@ def main(args):
     meas_filter_len = 3 # 3
     alpha = 0.97 # Gradient update factor, 0.95
     weights_meas = [0.2, 0.3, 0.5]
-    init_flag = False
+    init_flag = True
 
     ############ Initialize functions
     # WGS84 grid
