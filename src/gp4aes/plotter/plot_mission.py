@@ -251,7 +251,7 @@ class Plotter:
         # Create special time vector that fits position
         time_position = np.linspace(self.start_time, self.end_time, self.position.shape[0])
 
-        fig, ax = plt.subplots(figsize=(15, 3))
+        fig, ax = plt.subplots(figsize=(15, 4))
         plt.plot(time_position,dist,'k')
         plt.xlabel('Mission time [h]')
         plt.ylabel('Distance [m]')

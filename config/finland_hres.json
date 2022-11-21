@@ -1,0 +1,8 @@
+{
+    "ll": [61.421, 20.791],
+    "ur": [61.8, 21.567],
+    "dx": 300,
+    "start_date": 1618358400,
+    "end_date": 1618610399,
+    "dataset_source": "ocean_color"
+}

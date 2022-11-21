@@ -22,6 +22,16 @@
             "console": "integratedTerminal",
             "args": ["results/traj_finland_hres_oceancolor_new.h5", "--pdf"], 
             "justMyCode": true
-        }
+        },
+        {
+            "name": "Train Kernel",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["results/finland_lres.h5", "1618610399",
+                     "MAT", "3", "--clipped_area", "61.412", "61.80", "20.771", "21.31"], 
+            "justMyCode": true
+        },
     ]
 }

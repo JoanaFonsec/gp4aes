@@ -45,9 +45,9 @@ def main(args):
 
     t_idx = np.argmin(np.abs(args.timestamp - data.time))
 
-    N = 1500 # number of training points
-    N_meas = int(1700*1.1) # number of measurements points
-    n = int(np.sqrt(9*N_meas)*1.1) # number of test points per dimension (10/90 ratio)
+    N = 1000 #1500 # number of training points
+    N_meas = 500 #int(1700*1.1) # number of measurements points
+    n = 200 #int(np.sqrt(9*N_meas)*1.1) # number of test points per dimension (10/90 ratio)
     s = 1e-3 # noise standard deviation
 
     # Kernel-training data
@@ -216,7 +216,7 @@ def main(args):
             kernel.set_params(**{'k1__constant_value': args.kernel_params[0], 'k2__length_scale': args.kernel_params[1:]})
 
     print("Kernel hyperparameters:", kernel.get_params(deep=False))
-
+    
     # Fit GP model with measurements
     print("Fitting GP model...")
     print("N_train =", X.shape[0], " n=", n**2)

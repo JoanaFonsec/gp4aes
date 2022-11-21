@@ -51,7 +51,7 @@ def parse_config_file(path):
                         config["start_date"], config["end_date"], config["dataset_source"])
 
 
-def load_forecast_data(path, data):
+def load_data(path, data):
     print("Loading CMEMS forecast data...")
 
     root = nc.Dataset(path, 'r')
@@ -114,7 +114,7 @@ def load_forecast_data(path, data):
     return RawData(chl.T, lon, lat, time)
 
 
-def process_forecast_data(data, dx, earth_radius, dt=None):
+def process_data(data, dx, earth_radius):
     print("Processing data...")
 
     ddeg = dx / (np.radians(1.0) * earth_radius)
@@ -122,10 +122,7 @@ def process_forecast_data(data, dx, earth_radius, dt=None):
     lon_ax = np.arange(data.lon[0], data.lon[-1], step=ddeg)
     lat_ax = np.arange(data.lat[0], data.lat[-1], step=ddeg)
 
-    if dt is not None:
-        t_ax = np.arange(data.time[0], data.time[-1], step=dt)
-    else:
-        t_ax = data.time
+    t_ax = data.time
 
     xx, yy, tt = np.meshgrid(lon_ax, lat_ax, t_ax, indexing='ij')
     space = np.vstack([xx.ravel(), yy.ravel(), tt.ravel()]).T
