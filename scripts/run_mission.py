@@ -1,18 +1,13 @@
-try:
-    import gp4aes.util.parseh5 as h5
-except:
-    import sys
-    import os
-    add_d = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(add_d+'/../src')
-    import gp4aes.util.parseh5 as h5
-import gp4aes.estimator.GPR as gpr
-import gp4aes.controller.front_tracking as controller
-from gp4aes.util.GeoGrid import read_h5_data
 
 import numpy as np
 import time
 from argparse import ArgumentParser
+
+import gp4aes.util.parseh5 as h5
+import gp4aes.estimator.GPR as gpr
+import gp4aes.controller.front_tracking as controller
+from gp4aes.util.GeoGrid import read_h5_data
+
 
 def parse_args():
     parser = ArgumentParser()

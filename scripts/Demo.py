@@ -28,19 +28,18 @@ def main(args):
     ## VARIABLES
     earth_radius = 6369345
     timestamp = 1618610399
-    clipped_area = np.array([61.412, 61.80, 20.771, 21.31])
-    n_days = 3
     kernel_name = 'MAT'
-    offset = 1
 
     ## READ DATASETS
     config_lres_data = parseh5.parse_config_file(args.lres_config_path)
-    lres_data = parseh5.load_data(args.lres_data_path, config_lres_data)
+    data = parseh5.load_data(args.lres_data_path, config_lres_data)
+    lres_data = parseh5.process_data(data, config_lres_data.dx, earth_radius)
     
     config_hres_data = parseh5.parse_config_file(args.hres_config_path)
-    hres_data = parseh5.load_data(args.hres_data_path, config_hres_data)
+    data = parseh5.load_data(args.hres_data_path, config_hres_data)
+    hres_data = parseh5.process_data(data, config_hres_data.dx, earth_radius)
 
-    ## GET DATA
+    ## SAVE DATA
     chl = hres_data.chl
     time = hres_data.time
     lon = hres_data.lon
@@ -52,12 +51,16 @@ def main(args):
     N_meas = 500 # validation data
     n = 200 # test data
     s = 1e-3 # Approximately zero
+    n_days = 3
+    offset = 1
+    clipped_area = np.array([61.412, 61.80, 20.771, 21.31])
 
     kernel_params = gpr.train_GP_model(lres_data.chl, lres_data.lat, lres_data.lon, s, N, N_meas, n, n_days, t_idx, offset, clipped_area, kernel_name)
-   
+    # kernel_params = np.array([44.29588721, 0.54654887, 0.26656638])
+
     ######################################### RUN MISSION
 
-    # Dynamics
+    ## DYNAMICS
     alpha_seek = 50
     alpha_follow = 1
     delta_ref = 7.45
@@ -65,15 +68,14 @@ def main(args):
     dynamics = controller.Dynamics(alpha_seek, alpha_follow, delta_ref, speed)
     range_m = 200
     std = 1e-3
+    t_idx = np.argmin(np.abs(timestamp - time))
 
-    # Trajectory parameters
+    ## SETTINGS
     init_towards = np.array([[21, 61.492]])
     init_coords = np.array([[20.925, 61.492]])
     time_step = 1
     meas_per = 1 # measurement period
     chl_ref = 7.45
-
-    # Algorithm settings 
     n_iter = int(3e5) # 3e5
     n_meas = 200 # 125
     meas_filter_len = 3 # 3
@@ -81,21 +83,17 @@ def main(args):
     weights_meas = [0.2, 0.3, 0.5]
     init_flag = True
 
-    ############ Initialize functions
-    # Gaussian Process Regression
+    ## INIT FUNCTIONS
     est = gpr.GPEstimator(kernel_name, std, range_m, kernel_params)
     field = RegularGridInterpolator((lon, lat), chl[:,:,t_idx])
-
     init_heading = np.array([[init_towards[0, 0] - init_coords[0, 0], init_towards[0, 1] - init_coords[0, 1]]])
     
-    # Main variables: position, measurements, gradient, filtered_measurements, filtered_gradient
+    ## INIT VARIABLES
     position = np.empty((0, init_coords.shape[1]))
     measurements = np.empty((0))
     gradient = np.empty((0,init_coords.shape[1]))
     filtered_measurements = np.empty((0, init_coords.shape[1]))
     filtered_gradient = np.empty((0, init_coords.shape[1]))
-
-    # First value of the variables:
     position = np.append(position, init_coords, axis=0)
 
     ####################################### CYCLE ######################################################
@@ -103,11 +101,8 @@ def main(args):
     for i in range(n_iter-1):
         if i % int(n_iter/100) == 0:
             print("Current iteration: %d" % i)
-        if i % 100 == 0 and i != 0:
-            print(" --- Error: {:.4f}".format(dynamics.delta_ref - measurements[-1]))
 
         ##### Take measurement
-        
         val = field(position[-1,:]) + np.random.normal(0, est.s)
         if np.isnan(val):
             print("Warning: NaN value measured.")
@@ -148,15 +143,14 @@ def main(args):
 
     h5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,t_idx,delta_ref,time_step,meas_per)
 
-    # Set prefix for plot names
+    ## INIT PLOTTER
+    zoom = False
+    time_frame = False
+    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], filtered_gradient, measurements, chl_ref, zoom, time_frame, meas_per, time_step)
     extension = 'pdf'
     plot_name_prefix = ""
 
-    # Call plotter class
-    zoom=False
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, zoom, time, meas_per, time_step)
-
-    # Average speed
+    ## AVG SPEED
     distances_between_samples = np.array([])
     for i in range(0,len(position[:, 0])-2):
         distance = geopy.distance.geodesic((position[i,1],position[i,0]), (position[i+1,1],position[i+1,0])).m
@@ -185,7 +179,6 @@ def main(args):
     fig_zoomed.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoomed",extension),bbox_inches='tight')
 
     plt.show()
-
 
 
 if __name__ == "__main__":
