@@ -136,6 +136,9 @@ def main(args):
         next_position = controller.next_position(position[-1, :],control)
         position = np.append(position, next_position, axis=0)
 
+        if (lon[0] <= position[-1, 0] <= lon[-1]) and (lat[0] <= position[-1, 1] <= lat[-1]):
+            print("Warning: trajectory got out of boundary limits.")
+            break
         if next_position[0, 1] > 61.64:
             break
 

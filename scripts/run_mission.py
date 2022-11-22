@@ -1,12 +1,12 @@
 
 import numpy as np
 import time
+from scipy.interpolate import RegularGridInterpolator
 from argparse import ArgumentParser
 
 import gp4aes.util.parseh5 as h5
 import gp4aes.estimator.GPR as gpr
 import gp4aes.controller.front_tracking as controller
-from gp4aes.util.GeoGrid import read_h5_data
 
 
 def parse_args():
@@ -47,15 +47,21 @@ def main(args):
     weights_meas = [0.2, 0.3, 0.5]
     init_flag = True
 
-    ############ Initialize functions
-    # WGS84 grid
-    grid = read_h5_data(args.path, args.timestamp, include_time=args.include_time)
+    # Get data 
+    with h5.File(args.path, 'r') as f:
+        chl = f["chl"][()]
+        lat = f["lat"][()]
+        lon = f["lon"][()]
+        time_sim = f["time"][()]
+    t_idx = np.argmin(np.abs(args.timestamp - time_sim))
+    field = RegularGridInterpolator((lon, lat), chl[:,:,t_idx])
 
+    ############ Initialize functions
     # Gaussian Process Regression
     est = gpr.GPEstimator(kernel=args.kernel, s=args.std, range_m=args.range, params=args.kernel_params)
 
     if args.include_time is not False:
-        init_coords = np.array([[init_coords[0], init_coords[1], grid.time[grid.t_idx]]])
+        init_coords = np.array([[init_coords[0], init_coords[1], time_sim[t_idx]]])
         init_heading = np.array([[init_towards[0, 0] - init_coords[0, 0], init_towards[0, 1] - init_coords[0, 1], 1]])
 
     else:
@@ -81,7 +87,7 @@ def main(args):
             print(" --- Error: {:.4f}".format(dynamics.delta_ref - measurements[-1]))
 
         ##### Take measurement
-        val = grid.field(position[-1,:]) + np.random.normal(0, est.s)
+        val = field(position[-1,:]) + np.random.normal(0, est.s)
         if np.isnan(val):
             print("Warning: NaN value measured.")
             measurements = np.append(measurements, measurements[-1]) # Avoid plots problems
@@ -114,10 +120,9 @@ def main(args):
         next_position = controller.next_position(position[-1, :],control)
         position = np.append(position, next_position, axis=0)
 
-        if not grid.is_within_limits(position[-1, :], include_time=args.include_time):
+        if (lon[0] <= position[-1, 0] <= lon[-1]) and (lat[0] <= position[-1, 1] <= lat[-1]):
             print("Warning: trajectory got out of boundary limits.")
             break
-
         if next_position[0, 1] > 61.64:
             break
 
@@ -126,7 +131,7 @@ def main(args):
 
     print("Time taken for the estimation:", end-start)
 
-    h5.write_results(args.out_path,position,grid.data,grid.lon,grid.lat,grid.time,measurements,filtered_gradient,grid.t_idx,delta_ref,time_step,meas_per)
+    h5.write_results(args.out_path,position,chl,lon,lat,time_sim,measurements,filtered_gradient,t_idx,delta_ref,time_step,meas_per)
 
 if __name__ == "__main__":
     args = parse_args()

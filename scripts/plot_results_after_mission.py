@@ -1,14 +1,10 @@
-import sys
-import os
-add_d = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(add_d+'/../src')
-import gp4aes.plotter.plot_mission as plot_mission
-
 from argparse import ArgumentParser
 import h5py as h5
 import numpy as np
 import geopy.distance
 import matplotlib.pyplot as plt
+
+import gp4aes.plotter.plot_mission as plot_mission
 
 # Read runtime arguments
 def parse_args():
