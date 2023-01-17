@@ -3,8 +3,9 @@ import numpy as np
 import time
 from scipy.interpolate import RegularGridInterpolator
 from argparse import ArgumentParser
+import h5py as h5
 
-import gp4aes.util.parseh5 as h5
+import gp4aes.util.parseh5 as h5parse
 import gp4aes.estimator.GPR as gpr
 import gp4aes.controller.front_tracking as controller
 
@@ -73,6 +74,7 @@ def main(args):
     gradient = np.empty((0,init_coords.shape[1]))
     filtered_measurements = np.empty((0, init_coords.shape[1]))
     filtered_gradient = np.empty((0, init_coords.shape[1]))
+    control_law = np.empty((0, init_coords.shape[1]))
 
     # First value of the variables:
     position = np.append(position, init_coords, axis=0)
@@ -117,10 +119,11 @@ def main(args):
 
         ##### Calculate next position
         control = dynamics(filtered_measurements[-1], filtered_gradient[-1,:], include_time=args.include_time)
+        control_law = np.append(control_law, control.reshape((-1,2)), axis=0)
         next_position = controller.next_position(position[-1, :],control)
         position = np.append(position, next_position, axis=0)
 
-        if (lon[0] <= position[-1, 0] <= lon[-1]) and (lat[0] <= position[-1, 1] <= lat[-1]):
+        if not (lon[0] <= position[-1, 0] <= lon[-1]) and not (lat[0] <= position[-1, 1] <= lat[-1]):
             print("Warning: trajectory got out of boundary limits.")
             break
         if next_position[0, 1] > 61.64:
@@ -131,7 +134,7 @@ def main(args):
 
     print("Time taken for the estimation:", end-start)
 
-    h5.write_results(args.out_path,position,chl,lon,lat,time_sim,measurements,filtered_gradient,t_idx,delta_ref,time_step,meas_per)
+    h5parse.write_results(args.out_path,position,chl,lon,lat,time_sim,measurements,filtered_gradient,control_law,t_idx,delta_ref,time_step,meas_per)
 
 if __name__ == "__main__":
     args = parse_args()

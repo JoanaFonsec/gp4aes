@@ -93,17 +93,6 @@ def nonabs_1D_dist(x, X):
 
     return res
 
-
-def grad_moving_average_2D(grad, idx, n, weights):
-    val_x = grad[idx - n+1:idx + 1, 0]
-    val_y = grad[idx - n+1:idx + 1, 1]
-
-    x_ma = np.average(val_x, weights=weights)
-    y_ma = np.average(val_y, weights=weights)
-
-    return np.array([x_ma, y_ma])
-
-
 """
     Negative Log-Marginal Likelihood
     Parameters

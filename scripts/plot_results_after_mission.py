@@ -3,8 +3,9 @@ import h5py as h5
 import numpy as np
 import geopy.distance
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
-import gp4aes.plotter.plot_mission as plot_mission
+import gp4aes.plotter.mission_plotter as plot_mission
 
 # Read runtime arguments
 def parse_args():
@@ -37,15 +38,16 @@ def main(args):
         chl = f["chl"][()]
         #time = f["time"][()]
         position = f["traj"][()]
-        measurements = f["delta_vals"][()]
-        gradient = f["grad_vals"][()]
+        measurements = f["measurement"][()]
+        gradient = f["gradient"][()]
+        control = f["control_law"][()]
         chl_ref = f.attrs["delta_ref"]
         time_step = f.attrs["time_step"]
         meas_per = f.attrs["meas_per"]
         t_idx = f.attrs["t_idx"]
 
     # Call plotter class
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, args.zoom, args.time, meas_per, time_step)
+    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, control, chl_ref, meas_per, time_step)
 
     ############################################ PRINTS
     # Attributes and length os variables
@@ -62,25 +64,33 @@ def main(args):
     print("Average speed: {} m/s".format(np.mean(distances_between_samples)))
 
     ############################################ PLOTS
-    # Mission overview
+    #a) Mission overview
     fig_trajectory = plotter.mission_overview()
-    fig_trajectory.savefig("plots/{}{}.{}".format(plot_name_prefix, "trajectory",extension),bbox_inches='tight')
-
-    # Chl comparison
-    fig_chl = plotter.chl_comparison()
-    fig_chl.savefig("plots/{}{}.{}".format(plot_name_prefix, "measurements",extension),bbox_inches='tight')
+    fig_trajectory.savefig("plots/{}{}.{}".format(plot_name_prefix, "big_map",extension),bbox_inches='tight')
     
-    # Distance to front
-    fig_distance = plotter.distance_to_front()
-    fig_distance.savefig("plots/{}{}.{}".format(plot_name_prefix, "distance",extension),bbox_inches='tight')
-    
-    # Gradient comparison
+    #c) Gradient zoom1
     fig_gradient = plotter.gradient_comparison()
     fig_gradient.savefig("plots/{}{}.{}".format(plot_name_prefix, "gradient",extension),bbox_inches='tight')
 
-    # Zoomed in overview
-    fig_zoomed = plotter.zoomed_overview()
-    fig_zoomed.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoomed",extension),bbox_inches='tight')
+    #b) Zoom1 map with gradient
+    fig_zoom_gradient = plotter.zoom1()
+    fig_zoom_gradient.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoom1_map",extension),bbox_inches='tight')
+
+    #d) Chl zoom1
+    fig_chl = plotter.chl_comparison()
+    fig_chl.savefig("plots/{}{}.{}".format(plot_name_prefix, "measurements",extension),bbox_inches='tight')
+
+    #f) Control law zoom2
+    fig_control = plotter.control_input()
+    fig_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "control",extension),bbox_inches='tight')
+    
+    #e) Zoom2 map with control law 
+    fig_zoom_control = plotter.zoom2()
+    fig_zoom_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoom2_map",extension),bbox_inches='tight')
+
+    # Distance to front
+    # fig_distance = plotter.distance_to_front()
+    # fig_distance.savefig("plots/{}{}.{}".format(plot_name_prefix, "distance",extension),bbox_inches='tight')
 
     plt.show()
 

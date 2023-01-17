@@ -148,7 +148,7 @@ def write_data(path, data):
         ds = f.create_dataset("lon", data=data.lon)
         ds.attrs.create("units", np.string_("degrees_east"))
 
-def write_results(out_path,traj,chl,lon,lat,time,delta_vals,grad_vals,t_idx,delta_ref,time_step,meas_per):
+def write_results(out_path,traj,chl,lon,lat,time,measurement,gradient,control_law,t_idx,delta_ref,time_step,meas_per):
     print("Writing results to %s..." % (out_path))
 
     with h5.File(out_path, 'w') as f:
@@ -157,8 +157,9 @@ def write_results(out_path,traj,chl,lon,lat,time,delta_vals,grad_vals,t_idx,delt
         f.create_dataset("lon", data=lon)
         f.create_dataset("lat", data=lat)
         f.create_dataset("time", data=time)
-        f.create_dataset("delta_vals", data=delta_vals)
-        f.create_dataset("grad_vals", data=grad_vals)
+        f.create_dataset("measurement", data=measurement)
+        f.create_dataset("gradient", data=gradient)
+        f.create_dataset("control_law", data=control_law)
         f.attrs.create("t_idx", data=t_idx)
         f.attrs.create("delta_ref", data=delta_ref)
         f.attrs.create("time_step", data=time_step)

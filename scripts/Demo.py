@@ -8,8 +8,7 @@ from scipy.interpolate import RegularGridInterpolator
 import gp4aes.util.parseh5 as parseh5
 import gp4aes.estimator.GPR as gpr
 import gp4aes.controller.front_tracking as controller
-import gp4aes.util.parseh5 as h5
-import gp4aes.plotter.plot_mission as plot_mission
+import gp4aes.plotter.mission_plotter as plot_mission
 
 def parse_args():
     parser = ArgumentParser()
@@ -55,8 +54,8 @@ def main(args):
     offset = 1
     clipped_area = np.array([61.412, 61.80, 20.771, 21.31])
 
-    kernel_params = gpr.train_GP_model(lres_data.chl, lres_data.lat, lres_data.lon, s, N, N_meas, n, n_days, t_idx, offset, clipped_area, kernel_name)
-    # kernel_params = np.array([44.29588721, 0.54654887, 0.26656638])
+    # kernel_params = gpr.train_GP_model(lres_data.chl, lres_data.lat, lres_data.lon, s, N, N_meas, n, n_days, t_idx, offset, clipped_area, kernel_name)
+    kernel_params = np.array([44.29588721, 0.54654887, 0.26656638])
 
     ######################################### RUN MISSION
 
@@ -94,6 +93,8 @@ def main(args):
     gradient = np.empty((0,init_coords.shape[1]))
     filtered_measurements = np.empty((0, init_coords.shape[1]))
     filtered_gradient = np.empty((0, init_coords.shape[1]))
+    control_law = np.empty((0, init_coords.shape[1]))
+
     position = np.append(position, init_coords, axis=0)
 
     ####################################### CYCLE ######################################################
@@ -133,10 +134,11 @@ def main(args):
 
         ##### Calculate next position
         control = dynamics(filtered_measurements[-1], filtered_gradient[-1,:], include_time=False)
+        control_law = np.append(control_law, control.reshape((-1,2)), axis=0)
         next_position = controller.next_position(position[-1, :],control)
         position = np.append(position, next_position, axis=0)
 
-        if (lon[0] <= position[-1, 0] <= lon[-1]) and (lat[0] <= position[-1, 1] <= lat[-1]):
+        if not (lon[0] <= position[-1, 0] <= lon[-1]) and not (lat[0] <= position[-1, 1] <= lat[-1]):
             print("Warning: trajectory got out of boundary limits.")
             break
         if next_position[0, 1] > 61.64:
@@ -144,12 +146,11 @@ def main(args):
 
     ############################################# END OF CYCLE ###################################
 
-    h5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,t_idx,delta_ref,time_step,meas_per)
+    parseh5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,control_law,t_idx,delta_ref,time_step,meas_per)
 
     ## INIT PLOTTER
     zoom = False
-    time_frame = False
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], filtered_gradient, measurements, chl_ref, zoom, time_frame, meas_per, time_step)
+    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], filtered_gradient, measurements, control_law, chl_ref, zoom, meas_per, time_step)
     extension = 'pdf'
     plot_name_prefix = ""
 
@@ -180,6 +181,10 @@ def main(args):
     # Zoomed in overview
     fig_zoomed = plotter.zoomed_overview()
     fig_zoomed.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoomed",extension),bbox_inches='tight')
+
+    # Control law
+    fig_control = plotter.control_input()
+    fig_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "control",extension),bbox_inches='tight')
 
     plt.show()
 

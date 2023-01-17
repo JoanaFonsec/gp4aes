@@ -23,7 +23,6 @@ class Dynamics:
             u_norm = u * self.speed / np.linalg.norm(u)
             return np.array([u_norm[0], u_norm[1], 1])
 
-
 def next_position(position,control):
     # Calculate the increment in position, considering the earth radius
     earth_radius = 6369345
