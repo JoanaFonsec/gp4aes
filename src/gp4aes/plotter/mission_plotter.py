@@ -28,7 +28,7 @@ class HandlerArrow(HandlerPatch):
 
 ###################################### Class plotter
 class Plotter:
-    def __init__(self, position, lon, lat, chl, gradient, measurements, control, chl_ref, meas_per, time_step):
+    def __init__(self, position, lon, lat, chl, gradient, measurements, chl_ref, meas_per, time_step):
         self.lon = lon
         self.lat = lat
         self.lat = lat
@@ -74,7 +74,6 @@ class Plotter:
         self.position = position[meas_per*self.idx_start:meas_per*self.idx_end,:]
         self.measurements = measurements[self.idx_start:self.idx_end]
         self.gradient = gradient[self.idx_start:self.idx_end,:]
-        self.control = control[self.idx_start:self.idx_end,:]
 
     # Get the chl front line
     def get_front_line(self):

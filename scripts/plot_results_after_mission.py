@@ -46,8 +46,19 @@ def main(args):
         meas_per = f.attrs["meas_per"]
         t_idx = f.attrs["t_idx"]
 
+    # Setup plotting style
+    plt.style.reload_library()
+    plt.style.use(['science', 'no-latex'])
+    plt.rcParams.update({'xtick.labelsize': 20,
+                        'ytick.labelsize': 20,
+                        'axes.titlesize': 20,
+                        'axes.labelsize': 20,
+                        'legend.fontsize': 20,
+                        'legend.frameon' : True
+                        })
+
     # Call plotter class
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, control, chl_ref, meas_per, time_step)
+    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, meas_per, time_step)
 
     ############################################ PRINTS
     # Attributes and length os variables
