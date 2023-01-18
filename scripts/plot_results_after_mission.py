@@ -52,7 +52,7 @@ def main(args):
     zoom2_end = 19870
 
     # Call plotter class
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, meas_per, time_step,zoom1_start, zoom1_end, zoom2_start, zoom2_end)
+    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, meas_per, time_step, zoom1_start, zoom1_end, zoom2_start, zoom2_end)
 
     ############################################ PRINTS
     # Attributes and length os variables

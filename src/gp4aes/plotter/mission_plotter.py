@@ -66,12 +66,6 @@ class Plotter:
             self.it = np.linspace(self.start_time, self.end_time, self.idx_end-self.idx_start)
             self.idx_trig_time = self.it[self.idx_trig]
 
-        # Create zoom 1 and 2 time axis
-        self.zoom1_start = 15500
-        self.zoom1_end = 26000
-        self.zoom2_start = 18710
-        self.zoom2_end = 19870
-
         # Adjust all data
         self.position = position[meas_per*self.idx_start:meas_per*self.idx_end,:]
         self.measurements = measurements[self.idx_start:self.idx_end]
