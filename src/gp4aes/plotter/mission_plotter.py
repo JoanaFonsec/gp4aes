@@ -16,25 +16,27 @@ plt.rcParams.update({'xtick.labelsize': 20,
                     'legend.frameon' : True
                     })
 
-
-######################################## For plots with arrows
+###################################### Create legend for plots with arrows
 class HandlerArrow(HandlerPatch):
     def create_artists(self, legend, orig_handle, xdescent, ydescent, width, height, fontsize, trans):
-        p = mpatches.FancyArrow(0, 0.7*height, width, 0, length_includes_head=True, head_width=0.25*height )
+        p = mpatches.FancyArrow(0, 0.7*height, width, 0, length_includes_head=True, head_width=0.25*height)
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
 
-
 ###################################### Class plotter
 class Plotter:
-    def __init__(self, position, lon, lat, chl, gradient, measurements, chl_ref, meas_per, time_step):
+    def __init__(self, position, lon, lat, chl, gradient, measurements, chl_ref, meas_per, time_step, zoom1_start, zoom1_end, zoom2_start, zoom2_end):
         self.lon = lon
         self.lat = lat
         self.lat = lat
         self.chl = chl
         self.chl_ref = chl_ref
         self.meas_per = meas_per
+        self.zoom1_start = zoom1_start
+        self.zoom1_end = zoom1_end
+        self.zoom2_start = zoom2_start
+        self.zoom2_end = zoom2_end
 
         # Trim zeros and last entry so that all meas/grads are matched
         position = position[:-1,:]
@@ -250,7 +252,7 @@ class Plotter:
         ax.set_ylabel("Distance along latitude (km)")
         ax.set_xlim([lat_start, lat_end])
         ax.set_ylim([lon_start, lon_end])
-        #plt.grid(True)
+        plt.grid(False)
 
         # Plot gradient arrows
         for index in range(self.measurements.shape[0]):
@@ -268,9 +270,9 @@ class Plotter:
         h,l = plt.gca().get_legend_handles_labels()
         h.append(arrow1)
         h.append(arrow2)
-        l.append('Estimated gradient')
-        l.append('Ground truth')
-        plt.legend(h,l, handler_map={mpatches.FancyArrow : HandlerArrow()})
+        l.append(r'Estimated gradient')
+        l.append(r'Ground truth')
+        plt.legend(h,l, handler_map={mpatches.FancyArrow : HandlerArrow()}, fontsize=20)
         
         # Change distance from degres to meters
         ax.set_xticks([21.1, 21.11, 21.12, 21.13, 21.14, 21.15, 21.16, 21.17])
@@ -340,7 +342,7 @@ class Plotter:
         ax.set_ylabel("Distance along latitude (m)")
         ax.set_xlim([lon_start, lon_end])
         ax.set_ylim([lat_start, lat_end])
-        #plt.grid(True)
+        plt.grid(False)
 
         # Plot control arrows
         for index in range(self.measurements.shape[0]):
@@ -362,9 +364,9 @@ class Plotter:
         h,l = plt.gca().get_legend_handles_labels()
         h.append(arrow1)
         h.append(arrow2)
-        l.append('Control seek')
-        l.append('Control follow')
-        plt.legend(h,l, handler_map={mpatches.FancyArrow : HandlerArrow()})
+        l.append(r'Control seek')
+        l.append(r'Control follow')
+        plt.legend(h,l, handler_map={mpatches.FancyArrow : HandlerArrow()}, fontsize=20)
 
         # Change distance from degres to meters
         ax.set_xticks([21.142, 21.144, 21.146, 21.148, 21.150, 21.152])

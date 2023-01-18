@@ -40,25 +40,19 @@ def main(args):
         position = f["traj"][()]
         measurements = f["measurement"][()]
         gradient = f["gradient"][()]
-        control = f["control_law"][()]
         chl_ref = f.attrs["delta_ref"]
         time_step = f.attrs["time_step"]
         meas_per = f.attrs["meas_per"]
         t_idx = f.attrs["t_idx"]
 
-    # Setup plotting style
-    plt.style.reload_library()
-    plt.style.use(['science', 'no-latex'])
-    plt.rcParams.update({'xtick.labelsize': 20,
-                        'ytick.labelsize': 20,
-                        'axes.titlesize': 20,
-                        'axes.labelsize': 20,
-                        'legend.fontsize': 20,
-                        'legend.frameon' : True
-                        })
+    # Create zoom 1 and 2 time axis
+    zoom1_start = 15500
+    zoom1_end = 26000
+    zoom2_start = 18710
+    zoom2_end = 19870
 
     # Call plotter class
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, meas_per, time_step)
+    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, meas_per, time_step,zoom1_start, zoom1_end, zoom2_start, zoom2_end)
 
     ############################################ PRINTS
     # Attributes and length os variables
