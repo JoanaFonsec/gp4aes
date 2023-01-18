@@ -330,7 +330,8 @@ class Plotter:
         # Plot contour and trajectory
         p = ax.pcolormesh(xx, yy, field, cmap='viridis', shading='auto', vmin=0, vmax=10)
         cs = ax.contour(xx, yy, field, levels=[self.chl_ref], zorder = 1)
-        ax.plot(self.position[self.zoom2_start:self.zoom2_end,0], self.position[self.zoom2_start:self.zoom2_end,1], 'r', linewidth=2, zorder = 2)
+        ax.plot(self.position[self.meas_per*self.zoom2_start:self.meas_per*self.zoom2_end,0], self.position[self.meas_per*self.zoom2_start:self.meas_per*self.zoom2_end,1], 'r', linewidth=3, zorder = 1)
+
         ax.set_aspect('equal')
         ax.set_xlabel("Distance along longitude (m)")
         ax.set_ylabel("Distance along latitude (m)")
@@ -340,7 +341,7 @@ class Plotter:
 
         # Plot control arrows
         for index in range(self.measurements.shape[0]):
-            if index % 80 == 0 :
+            if index % (80 / self.meas_per) == 0 :
                 x = self.position[self.meas_per*index,0]
                 y = self.position[self.meas_per*index,1]
 
