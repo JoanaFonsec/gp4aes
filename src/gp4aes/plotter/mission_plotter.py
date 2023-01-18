@@ -239,7 +239,7 @@ class Plotter:
         # Plot contour and trajectory
         p = ax.pcolormesh(xx, yy, field, cmap='viridis', shading='auto', vmin=0, vmax=10)
         cs = ax.contour(xx, yy, field, levels=[self.chl_ref])
-        ax.plot(self.position[self.zoom1_start:self.zoom1_end,0], self.position[self.zoom1_start:self.zoom1_end,1], 'r', linewidth=3, zorder = 1)
+        ax.plot(self.position[self.meas_per*self.zoom1_start:self.meas_per*self.zoom1_end,0], self.position[self.meas_per*self.zoom1_start:self.meas_per*self.zoom1_end,1], 'r', linewidth=3, zorder = 1)
 
         ax.set_aspect('equal')
         ax.set_xlabel("Distance along longitude (km)")
@@ -250,7 +250,7 @@ class Plotter:
 
         # Plot gradient arrows
         for index in range(self.measurements.shape[0]):
-            if index % 550 == 0 :
+            if index % (550 / self.meas_per) == 0 :
                 x=self.position[self.meas_per*index,0]
                 y=self.position[self.meas_per*index,1]
                 dx=0.003*self.gradient[index][0] / np.linalg.norm(self.gradient[index])
