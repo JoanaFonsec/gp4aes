@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import RegularGridInterpolator
 from scipy import spatial
 import geopy.distance
+from matplotlib.patches import Rectangle
 
 plt.style.reload_library()
 plt.style.use(['science', 'no-latex'])
@@ -26,17 +27,13 @@ class HandlerArrow(HandlerPatch):
 
 ###################################### Class plotter
 class Plotter:
-    def __init__(self, position, lon, lat, chl, gradient, measurements, chl_ref, meas_per, time_step, zoom1_start, zoom1_end, zoom2_start, zoom2_end):
+    def __init__(self, position, lon, lat, chl, gradient, measurements, chl_ref, meas_per, time_step):
         self.lon = lon
         self.lat = lat
         self.lat = lat
         self.chl = chl
         self.chl_ref = chl_ref
         self.meas_per = meas_per
-        self.zoom1_start = zoom1_start
-        self.zoom1_end = zoom1_end
-        self.zoom2_start = zoom2_start
-        self.zoom2_end = zoom2_end
 
         # Trim zeros and last entry so that all meas/grads are matched
         position = position[:-1,:]
@@ -104,25 +101,35 @@ class Plotter:
 
 ############################################################################################# PLOT TRAJECTORY ###################################################
 
-    def mission_overview(self):
+    def mission_overview(self,lon_start,lon_end,lat_start,lat_end):
 
-        fig, ax = plt.subplots(figsize=(15, 6))
+        self.lon_start1 = lon_start
+        self.lon_end1 = lon_end
+        self.lat_start1 = lat_start
+        self.lat_end1 = lat_end
+
+        fig, ax = plt.subplots(figsize=(20, 6))
         xx, yy = np.meshgrid(self.lon, self.lat, indexing='ij')
         p = ax.pcolormesh(xx, yy, self.chl, cmap='viridis', shading='auto', vmin=0, vmax=10)
         self.cs = ax.contour(xx, yy, self.chl, levels=[self.chl_ref])
         ax.plot(self.position[:,0], self.position[:,1], 'r', linewidth=3)
+        plt.gca().add_patch(Rectangle((lon_start,lat_start),lon_end-lon_start,lat_end-lat_start, edgecolor='blue', facecolor='none', lw=3))
+
         ax.set_aspect('equal')
         cax = fig.add_axes([ax.get_position().x1+0.01,ax.get_position().y0,0.02,ax.get_position().height])
         cp = fig.colorbar(p, cax=cax)
         cp.set_label("Chl a concentration [mm/mm3]")
         ax.set_xlabel("Longitude (degrees E)")
         ax.set_ylabel("Latitude (degrees N)")
-        #plt.grid(True)
+        plt.grid(False)
 
         return fig
 
 ################################################################################ PLOT GRADIENT #######################################################
-    def gradient_comparison(self):
+    def gradient_comparison(self,zoom1_start,zoom1_end):
+
+        self.zoom1_start = zoom1_start
+        self.zoom1_end = zoom1_end
 
         # gt => ground truth
         self.gt_gradient = np.zeros([self.gradient.shape[0], 2])
@@ -157,8 +164,8 @@ class Plotter:
 
         # Plot gradient angle
         fig, ax = plt.subplots(figsize=(15, 3))
-        plt.plot(it_grad[self.zoom1_start:self.zoom1_end], grad_angles[self.zoom1_start:self.zoom1_end], 'k-', linewidth=1, label='GP Estimation')
-        plt.plot(it_gt_grad[self.zoom1_start:self.zoom1_end], gt_grad_angles[self.zoom1_start:self.zoom1_end], 'r-', linewidth=1, label='Ground truth')
+        plt.plot(it_gt_grad[self.zoom1_start:self.zoom1_end], gt_grad_angles[self.zoom1_start:self.zoom1_end], 'r-', linewidth=1, label='True gradient')
+        plt.plot(it_grad[self.zoom1_start:self.zoom1_end], grad_angles[self.zoom1_start:self.zoom1_end], 'k-', linewidth=1, label='Estimated gradient')
         plt.xlabel('Mission time [h]')
         plt.ylabel('Gradient [rad]')
         plt.legend(loc=4, shadow=True)
@@ -177,7 +184,7 @@ class Plotter:
             plt.plot(np.tile(self.it[self.idx_trig], 10), np.linspace(np.min(self.measurements), self.chl_ref*1.4, 10), 'r--')
         plt.xlabel('Mission time [h]')
         plt.ylabel('Concentration\n [mm/mm3]')
-        plt.axis([self.it[self.zoom1_start], self.it[self.zoom1_end], 6.5, 8]) # 6,9 and 2,9
+        plt.axis([self.it[self.zoom1_start], self.it[self.zoom1_end], 6.3, 8.3]) # 6,9 and 2,9
         plt.legend(loc=4, shadow=True)
         plt.grid(True)
 
@@ -223,12 +230,7 @@ class Plotter:
         return fig
 
 ################################################################################# PLOT ZOOM map 1 with gradient
-    def zoom1(self):
-        # Square of space we want
-        lat_start = 21.1
-        lat_end = 21.17
-        lon_start = 61.525
-        lon_end = 61.56
+    def zoom1(self, lon_start2,lon_end2,lat_start2,lat_end2,lon_start3,lon_end3,lat_start3,lat_end3):
 
         # Plot mesh with improved resolution using interpolation
         interpolating_function = RegularGridInterpolator((self.lon,self.lat), self.chl)
@@ -240,12 +242,15 @@ class Plotter:
         p = ax.pcolormesh(xx, yy, field, cmap='viridis', shading='auto', vmin=0, vmax=10)
         cs = ax.contour(xx, yy, field, levels=[self.chl_ref])
         ax.plot(self.position[self.meas_per*self.zoom1_start:self.meas_per*self.zoom1_end,0], self.position[self.meas_per*self.zoom1_start:self.meas_per*self.zoom1_end,1], 'r', linewidth=3, zorder = 1)
+        # zoom2 and zoom3
+        plt.gca().add_patch(Rectangle((lon_start2,lat_start2),lon_end2-lon_start2,lat_end2-lat_start2, edgecolor='blue', facecolor='none', lw=3))
+        plt.gca().add_patch(Rectangle((lon_start3,lat_start3),lon_end3-lon_start3,lat_end3-lat_start3, edgecolor='blue', facecolor='none', lw=3))
 
         ax.set_aspect('equal')
         ax.set_xlabel("Distance along longitude (km)")
         ax.set_ylabel("Distance along latitude (km)")
-        ax.set_xlim([lat_start, lat_end])
-        ax.set_ylim([lon_start, lon_end])
+        ax.set_xlim([self.lon_start1, self.lon_end1])
+        ax.set_ylim([self.lat_start1, self.lat_end1])
         plt.grid(False)
 
         # Plot gradient arrows
@@ -262,24 +267,26 @@ class Plotter:
 
         # Legend for the arrows
         h,l = plt.gca().get_legend_handles_labels()
-        h.append(arrow1)
         h.append(arrow2)
+        h.append(arrow1)
+        l.append(r'True gradient')
         l.append(r'Estimated gradient')
-        l.append(r'Ground truth')
         plt.legend(h,l, handler_map={mpatches.FancyArrow : HandlerArrow()}, fontsize=20)
         
         # Change distance from degres to meters
-        ax.set_xticks([21.1, 21.11, 21.12, 21.13, 21.14, 21.15, 21.16, 21.17])
-        ax.set_xticklabels([0, 0.5, 1.1, 1.6, 2.1, 2.7, 3.2, 3.7]) #([0, 530, 1060 , 1590, 2120, 2650, 3180, 3710])
-        ax.set_yticks([61.525, 61.53, 61.535, 61.54, 61.545, 61.55, 61.555, 61.56])
-        ax.set_yticklabels([0, 0.5, 1.1, 1.7, 2.2, 2.8, 3.3, 3.9]) #([0, 556, 1112, 1668, 2224, 2780, 3336, 3892, 4448])
-        
+        xlabels = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
+        plt.xticks(np.linspace(21.1, 21.166, len(xlabels)), xlabels)
+        ylabels = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
+        plt.yticks(np.linspace(61.525, 61.5567, len(ylabels)), ylabels)        
         return fig
         
         
 ################################################################################ PLOT Control Law #######################################################
-    def control_input(self):
+    def control_input(self,zoom2_start, zoom2_end):
         
+        self.zoom2_start = zoom2_start
+        self.zoom2_end = zoom2_end
+
         # Determine control seek and follow
         alpha_seek = 50
         alpha_follow = 1
@@ -308,18 +315,12 @@ class Plotter:
         return fig
         
 ################################################################################# PLOT ZOOM map 2 with control
-    def zoom2(self):
-        # Square of space we want
-        lon_start = 21.142
-        lon_end = 21.152
-        lat_start = 61.534
-        lat_end = 61.539
+    def zoom2(self,lon_start,lon_end,lat_start,lat_end):
 
         # Get perpendicular vector to the gradient: R_{pi/2} * gradient
         perpendicular_gradient = np.zeros([self.gradient.shape[0], 2])
         rotation = np.array([[0, -1],[1, 0]])
         perpendicular_gradient = rotation.dot(self.gradient.T).T
-
 
         # Plot mesh with improved resolution using interpolation
         interpolating_function = RegularGridInterpolator((self.lon,self.lat), self.chl)
@@ -354,7 +355,6 @@ class Plotter:
                 arrow1 = ax.arrow(x, y, dx_seek, dy_seek, width=.00002, color='blue', zorder = 3)
                 arrow2 = ax.arrow(x, y, dx_follow, dy_follow, width=.00002, color='black', zorder = 3)
 
-        
         # Legend for the arrows
         h,l = plt.gca().get_legend_handles_labels()
         h.append(arrow1)
@@ -364,9 +364,9 @@ class Plotter:
         plt.legend(h,l, handler_map={mpatches.FancyArrow : HandlerArrow()}, fontsize=20)
 
         # Change distance from degres to meters
-        ax.set_xticks([21.142, 21.144, 21.146, 21.148, 21.150, 21.152])
-        ax.set_xticklabels([0, 105, 211, 317, 423, 529])
-        ax.set_yticks([61.534, 61.536, 61.538])
-        ax.set_yticklabels([0, 111, 223])
+        xlabels = [0, 100, 200, 300, 400, 500]
+        plt.xticks(np.linspace(lon_start, lon_end-0.0005, len(xlabels)), xlabels)
+        ylabels = [0, 100, 200, 300, 400, 500]
+        plt.yticks(np.linspace(lat_start, lat_end-0.0005, len(ylabels)), ylabels)        
         
         return fig
