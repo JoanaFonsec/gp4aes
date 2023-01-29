@@ -23,15 +23,7 @@ class ConfigData:
         self.dt = dt
 
 
-class RawData:
-    def __init__(self, chl, lon, lat, time=None):
-        self.chl = chl
-        self.lon = lon
-        self.lat = lat
-        self.time = time
-
-
-class ProcessedData:
+class AllData:
     def __init__(self, chl, lon, lat, time=None):
         self.chl = chl
         self.lon = lon
@@ -111,7 +103,7 @@ def load_data(path, data):
     print("Operational area: %.6fº -- %.6fº; %.6fº -- %.6fº" %
             (lon[0], lon[-1], lat[0], lat[-1]))
 
-    return RawData(chl.T, lon, lat, time)
+    return AllData(chl.T, lon, lat, time)
 
 
 def process_data(data, dx, earth_radius):
@@ -130,7 +122,7 @@ def process_data(data, dx, earth_radius):
     chl = RegularGridInterpolator((data.lon, data.lat, data.time), data.chl)(space)
     chl = np.reshape(chl, xx.shape)
 
-    return ProcessedData(chl, lon_ax, lat_ax, t_ax)
+    return AllData(chl, lon_ax, lat_ax, t_ax)
 
 def write_data(path, data):
     print("Writing data to %s..." % (path))
