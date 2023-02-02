@@ -114,6 +114,8 @@ class Plotter:
         self.cs = ax.contour(xx, yy, self.chl, levels=[self.chl_ref])
         ax.plot(self.position[:,0], self.position[:,1], 'r', linewidth=3)
         plt.gca().add_patch(Rectangle((lon_start,lat_start),lon_end-lon_start,lat_end-lat_start, edgecolor='blue', facecolor='none', lw=3))
+        plt.plot(self.position[0,0], self.position[0,1], marker="*", markersize=10, markeredgecolor="white", markerfacecolor="white")
+        plt.plot(self.position[-1,0], self.position[-1,1], marker="s", markersize=7, markeredgecolor="white", markerfacecolor="white")
 
         ax.set_aspect('equal')
         cax = fig.add_axes([ax.get_position().x1+0.01,ax.get_position().y0,0.02,ax.get_position().height])
