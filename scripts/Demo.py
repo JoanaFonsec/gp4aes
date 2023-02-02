@@ -60,7 +60,7 @@ def main(args):
     ######################################### RUN MISSION
 
     ## DYNAMICS
-    alpha_seek = 50
+    alpha_seek = 20
     alpha_follow = 1
     delta_ref = 7.45
     speed = 1.0 # 1m/s
