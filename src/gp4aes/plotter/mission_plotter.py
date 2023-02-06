@@ -44,8 +44,8 @@ class Plotter:
         self.end_time = time_step*(len(position[:, 0])-2)/3600.0
 
         # Determine start and stop indexes for the mission period
-        self.idx_start = int(3600 / time_step / self.meas_per * self.start_time)
-        self.idx_end = int(3600 / time_step / self.meas_per * self.end_time)
+        self.idx_start = int(3600.0 / time_step / self.meas_per * self.start_time)
+        self.idx_end = int(3600.0 / time_step / self.meas_per * self.end_time)
         self.vector_length = self.idx_end - self.idx_start
 
         # Determine index of traj where AUV reaches the front
