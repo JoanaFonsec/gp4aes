@@ -66,7 +66,7 @@ def main(args):
     speed = 1.0 # 1m/s
     dynamics = controller.Dynamics(alpha_seek, alpha_follow, delta_ref, speed)
     range_m = 200
-    std = 1e-3
+    std = 100 * 1e-3
     t_idx = np.argmin(np.abs(timestamp - time))
 
     ## SETTINGS
