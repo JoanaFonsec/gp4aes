@@ -186,7 +186,7 @@ class Plotter:
             plt.plot(np.tile(self.it[self.idx_trig], 10), np.linspace(np.min(self.measurements), self.chl_ref*1.4, 10), 'r--')
         plt.xlabel('Mission time [h]')
         plt.ylabel('Concentration\n [mm/mm3]')
-        plt.axis([self.it[self.zoom1_start], self.it[self.zoom1_end], 6.7, 7.8]) # 6,9 and 2,9
+        plt.axis([self.it[self.zoom1_start], self.it[self.zoom1_end], 7, 7.7]) # 6,9 and 2,9
         plt.legend(loc=4, shadow=True)
         plt.grid(True)
 
