@@ -108,7 +108,7 @@ class Plotter:
         self.lat_start1 = lat_start
         self.lat_end1 = lat_end
 
-        fig, ax = plt.subplots(figsize=(20, 6))
+        fig, ax = plt.subplots(figsize=(15, 6))
         xx, yy = np.meshgrid(self.lon, self.lat, indexing='ij')
         p = ax.pcolormesh(xx, yy, self.chl, cmap='viridis', shading='auto', vmin=0, vmax=10)
         self.cs = ax.contour(xx, yy, self.chl, levels=[self.chl_ref])
