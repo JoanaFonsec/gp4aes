@@ -63,58 +63,43 @@ def main(args):
     print("Average speed: {} m/s".format(np.mean(distances_between_samples)))
 
     ############################################ PLOTS
-    # Create zoom 1 square
+    # Zoom 1 square
     lat_start1 = 61.525
     lat_end1 = 61.56
     lon_start1 = 21.1
     lon_end1 = 21.17
 
-    # #a) Mission overview
-    # fig_trajectory = plotter.mission_overview(lon_start1,lon_end1,lat_start1,lat_end1)
-    # fig_trajectory.savefig("plots/{}{}.{}".format(plot_name_prefix, "big_map",extension),bbox_inches='tight')
+    #a) Mission overview
+    fig_trajectory = plotter.mission_overview(lon_start1,lon_end1,lat_start1,lat_end1)
+    fig_trajectory.savefig("plots/{}{}.{}".format(plot_name_prefix, "big_map",extension),bbox_inches='tight')
     
     ######################## ZOOM 1
-    # Create zoom 1 time
-    zoom_start1 = 15500
-    zoom_end1 = 26000
+    #c) Gradient zoom1
+    fig_gradient = plotter.gradient_comparison()
+    fig_gradient.savefig("plots/{}{}.{}".format(plot_name_prefix, "gradient",extension),bbox_inches='tight')
 
-    # #c) Gradient zoom1
-    # fig_gradient = plotter.gradient_comparison(zoom_start1, zoom_end1)
-    # fig_gradient.savefig("plots/{}{}.{}".format(plot_name_prefix, "gradient",extension),bbox_inches='tight')
+    #d) Chl zoom1
+    fig_chl = plotter.chl_comparison()
+    fig_chl.savefig("plots/{}{}.{}".format(plot_name_prefix, "measurements",extension),bbox_inches='tight', dpi=300)
 
-    # #d) Chl zoom1
-    # fig_chl = plotter.chl_comparison()
-    # fig_chl.savefig("plots/{}{}.{}".format(plot_name_prefix, "measurements",extension),bbox_inches='tight', dpi=300)
-
-    # Previous zoom square
+    # Zoom 2 square
     lon_start2 = 21.142
     lon_end2 = 21.152
     lat_start2 = 61.534  
     lat_end2 = 61.539
-    # # Create zoom 2 square
-    # lon_start2 = 21.113
-    # lon_end2 = 21.123
-    # lat_start2 = 61.527 
-    # lat_end2 = 61.532
-    # # Create zoom 3 square
-    # lon_start3 = 21.154
-    # lon_end3 = 21.164
-    # lat_start3 = 61.547
-    # lat_end3 = 61.552
+    # Zoom 3 square
+    lon_start3 = 21.154
+    lon_end3 = 21.164
+    lat_start3 = 61.547
+    lat_end3 = 61.552
 
-    #b) Zoom1 map with gradient
-    # fig_zoom_gradient = plotter.zoom1(lon_start2,lon_end2,lat_start2,lat_end2,lon_start3,lon_end3,lat_start3,lat_end3)
-    # fig_zoom_gradient.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoom1_map",extension),bbox_inches='tight')
+    # b) Zoom1 map with gradient
+    fig_zoom_gradient = plotter.zoom1(lon_start2,lon_end2,lat_start2,lat_end2,lon_start3,lon_end3,lat_start3,lat_end3)
+    fig_zoom_gradient.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoom1_map",extension),bbox_inches='tight')
 
-    ######################## ZOOM 2
-    # Create zoom 2 time
-    # zoom_start2 = 16070
-    # zoom_end2 = 17110
-    zoom_start2 = 18680
-    zoom_end2 = 19820
-
+    ####################### ZOOM 2
     #f) Control law zoom2
-    fig_control = plotter.control_input(zoom_start2, zoom_end2)
+    fig_control = plotter.control_input(2)
     fig_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "control2",extension),bbox_inches='tight')
 
     #e) Zoom 2 map with control law 
@@ -122,17 +107,13 @@ def main(args):
     fig_zoom_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoom2_map",extension),bbox_inches='tight', dpi=300)
 
     # ######################## ZOOM 3
-    # # Create zoom 3 time 
-    # zoom_start3 = 21650
-    # zoom_end3 = 22670
+    #h) Control law zoom 3
+    fig_control = plotter.control_input(3)
+    fig_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "control3",extension),bbox_inches='tight')
 
-    # #h) Control law zoom 3
-    # fig_control = plotter.control_input(zoom_start3, zoom_end3)
-    # fig_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "control3",extension),bbox_inches='tight')
-
-    # #g) Zoom 3 map with control law 
-    # fig_zoom_control = plotter.zoom2(lon_start3,lon_end3,lat_start3,lat_end3)
-    # fig_zoom_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoom3_map",extension),bbox_inches='tight', dpi=300)
+    #g) Zoom 3 map with control law 
+    fig_zoom_control = plotter.zoom2(lon_start3,lon_end3,lat_start3,lat_end3)
+    fig_zoom_control.savefig("plots/{}{}.{}".format(plot_name_prefix, "zoom3_map",extension),bbox_inches='tight', dpi=300)
 
     plt.show()
 

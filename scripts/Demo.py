@@ -7,6 +7,7 @@ from scipy.interpolate import RegularGridInterpolator
 
 import gp4aes.util.parseh5 as parseh5
 import gp4aes.estimator.GPR as gpr
+from gp4aes.estimator.LSQ import LSQ_estimation
 import gp4aes.controller.front_tracking as controller
 import gp4aes.plotter.mission_plotter as plot_mission
 
@@ -76,14 +77,14 @@ def main(args):
     meas_per = 1 # measurement period
     chl_ref = 7.45
     n_iter = int(3e5) # 3e5
-    n_meas = 200 # 125
+    n_meas = 20 # 200
     meas_filter_len = 3 # 3
     alpha = 0.97 # Gradient update factor, 0.95
     weights_meas = [0.2, 0.3, 0.5]
     init_flag = True
 
     ## INIT FUNCTIONS
-    est = gpr.GPEstimator(kernel_name, std, range_m, kernel_params)
+    # est = gpr.GPEstimator(kernel_name, std, range_m, kernel_params)
     field = RegularGridInterpolator((lon, lat), chl[:,:,t_idx])
     init_heading = np.array([[init_towards[0, 0] - init_coords[0, 0], init_towards[0, 1] - init_coords[0, 1]]])
     
@@ -104,7 +105,7 @@ def main(args):
             print("Current iteration: %d" % i)
 
         ##### Take measurement
-        val = field(position[-1,:]) + np.random.normal(0, est.s)
+        val = field(position[-1,:]) + np.random.normal(0, s)
         if np.isnan(val):
             print("Warning: NaN value measured.")
             measurements = np.append(measurements, measurements[-1]) # Avoid plots problems
@@ -128,7 +129,8 @@ def main(args):
                                         np.average(measurements[- meas_filter_len:], weights=weights_meas))
 
             # Estimate and filter gradient
-            gradient_calculation = np.array(est.est_grad(position[-n_meas:],filtered_measurements[-n_meas:])).squeeze().reshape(-1, 2)
+            # gradient_calculation = np.array(est.est_grad(position[-n_meas:],filtered_measurements[-n_meas:])).squeeze().reshape(-1, 2)
+            gradient_calculation = np.array(LSQ_estimation(position[-n_meas:],filtered_measurements[-n_meas:])).squeeze().reshape(-1, 2)
             gradient = np.append(gradient, gradient_calculation / np.linalg.norm(gradient_calculation), axis=0)
             filtered_gradient = np.append(filtered_gradient, filtered_gradient[[-2], :]*alpha + gradient[[-1], :]*(1-alpha), axis=0)
 

@@ -125,13 +125,15 @@ class Plotter:
         ax.set_ylabel("Latitude (degrees N)")
         plt.grid(False)
 
-        return fig
+        # Create Zoom1 vector    
+        indices_inside_square = np.where((lon_start < self.position[:,0]) & (self.position[:,0] < lon_end) & (lat_start < self.position[:,1]) & (self.position[:,1] < lat_end))[0]                                         
+        self.zoom1_start = indices_inside_square[0]
+        self.zoom1_end = indices_inside_square[-1]
+
+        return fig 
 
 ################################################################################ PLOT GRADIENT #######################################################
-    def gradient_comparison(self,zoom1_start,zoom1_end):
-
-        self.zoom1_start = zoom1_start
-        self.zoom1_end = zoom1_end
+    def gradient_comparison(self):
 
         # gt => ground truth
         self.gt_gradient = np.zeros([self.gradient.shape[0], 2])
@@ -243,7 +245,7 @@ class Plotter:
         # Plot contour and trajectory
         p = ax.pcolormesh(xx, yy, field, cmap='viridis', shading='auto', vmin=0, vmax=10)
         cs = ax.contour(xx, yy, field, levels=[self.chl_ref])
-        ax.plot(self.position[self.meas_per*self.zoom1_start:self.meas_per*self.zoom1_end,0], self.position[self.meas_per*self.zoom1_start:self.meas_per*self.zoom1_end,1], 'r', linewidth=3, zorder = 1)
+        ax.plot(self.position[:,0], self.position[:,1], 'r', linewidth=3, zorder = 1)
         # zoom2 and zoom3
         plt.gca().add_patch(Rectangle((lon_start2,lat_start2),lon_end2-lon_start2,lat_end2-lat_start2, edgecolor='blue', facecolor='none', lw=3))
         plt.gca().add_patch(Rectangle((lon_start3,lat_start3),lon_end3-lon_start3,lat_end3-lat_start3, edgecolor='blue', facecolor='none', lw=3))
@@ -280,14 +282,29 @@ class Plotter:
         plt.xticks(np.linspace(21.1, 21.166, len(xlabels)), xlabels)
         ylabels = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
         plt.yticks(np.linspace(61.525, 61.5567, len(ylabels)), ylabels)        
+
+        # Create Zoom2 vector    
+        indices_inside_square = np.where((lon_start2 < self.position[:,0]) & (self.position[:,0] < lon_end2) & (lat_start2 < self.position[:,1]) & (self.position[:,1] < lat_end2))[0]                                         
+        self.zoom2_start = indices_inside_square[0]
+        self.zoom2_end = indices_inside_square[-1]
+        # Create Zoom3 vector    
+        indices_inside_square = np.where((lon_start3 < self.position[:,0]) & (self.position[:,0] < lon_end3) & (lat_start3 < self.position[:,1]) & (self.position[:,1] < lat_end3))[0]                                         
+        self.zoom3_start = indices_inside_square[0]
+        self.zoom3_end = indices_inside_square[-1]
+
         return fig
         
         
 ################################################################################ PLOT Control Law #######################################################
-    def control_input(self,zoom2_start, zoom2_end):
+    def control_input(self,zoom_number):
         
-        self.zoom2_start = zoom2_start
-        self.zoom2_end = zoom2_end
+        # Which zoom? 1 or 2?
+        if zoom_number == 2:
+            zoom_start = self.zoom2_start
+            zoom_end = self.zoom2_end
+        elif zoom_number == 3:
+            zoom_start = self.zoom3_start
+            zoom_end = self.zoom3_end
 
         # Determine control seek and follow
         alpha_seek = 50
@@ -306,13 +323,13 @@ class Plotter:
 
         # Plot control angle
         fig, ax = plt.subplots(figsize=(15, 3))
-        plt.plot(time_control[self.zoom2_start:self.zoom2_end], np.abs(self.control_seek[self.zoom2_start:self.zoom2_end]), 'b-', linewidth=1, label='Control seek')
-        plt.plot(time_control[self.zoom2_start:self.zoom2_end], self.control_follow[self.zoom2_start:self.zoom2_end], 'k-', linewidth=1, label='Control follow')
+        plt.plot(time_control[zoom_start:zoom_end], np.abs(self.control_seek[zoom_start:zoom_end]), 'b-', linewidth=1, label='Control seek')
+        plt.plot(time_control[zoom_start:zoom_end], self.control_follow[zoom_start:zoom_end], 'k-', linewidth=1, label='Control follow')
         plt.xlabel('Mission time [h]')
         plt.ylabel('Control law')
         plt.legend(loc=4, shadow=True)
         plt.grid(True)
-        plt.axis([self.it[self.zoom2_start], self.it[self.zoom2_end], -2, 1.5])
+        plt.axis([self.it[zoom_start], self.it[zoom_end], -2, 1.5])
 
         return fig
         
@@ -333,7 +350,7 @@ class Plotter:
         # Plot contour and trajectory
         p = ax.pcolormesh(xx, yy, field, cmap='viridis', shading='auto', vmin=0, vmax=10)
         cs = ax.contour(xx, yy, field, levels=[self.chl_ref], zorder = 1)
-        ax.plot(self.position[self.meas_per*self.zoom2_start:self.meas_per*self.zoom2_end,0], self.position[self.meas_per*self.zoom2_start:self.meas_per*self.zoom2_end,1], 'r', linewidth=3, zorder = 1)
+        ax.plot(self.position[:,0], self.position[:,1], 'r', linewidth=3, zorder = 1)
 
         ax.set_aspect('equal')
         ax.set_xlabel("Distance along longitude (m)")
