@@ -77,14 +77,14 @@ def main(args):
     meas_per = 1 # measurement period
     chl_ref = 7.45
     n_iter = int(3e5) # 3e5
-    n_meas = 20 # 200
+    n_meas = 200 # 200
     meas_filter_len = 3 # 3
     alpha = 0.97 # Gradient update factor, 0.95
     weights_meas = [0.2, 0.3, 0.5]
     init_flag = True
 
     ## INIT FUNCTIONS
-    # est = gpr.GPEstimator(kernel_name, std, range_m, kernel_params)
+    est = gpr.GPEstimator(kernel_name, std, range_m, kernel_params)
     field = RegularGridInterpolator((lon, lat), chl[:,:,t_idx])
     init_heading = np.array([[init_towards[0, 0] - init_coords[0, 0], init_towards[0, 1] - init_coords[0, 1]]])
     
@@ -129,8 +129,8 @@ def main(args):
                                         np.average(measurements[- meas_filter_len:], weights=weights_meas))
 
             # Estimate and filter gradient
-            # gradient_calculation = np.array(est.est_grad(position[-n_meas:],filtered_measurements[-n_meas:])).squeeze().reshape(-1, 2)
-            gradient_calculation = np.array(LSQ_estimation(position[-n_meas:],filtered_measurements[-n_meas:])).squeeze().reshape(-1, 2)
+            gradient_calculation = np.array(est.est_grad(position[-n_meas:],filtered_measurements[-n_meas:])).squeeze().reshape(-1, 2)
+            # gradient_calculation = np.array(LSQ_estimation(position[-n_meas:],filtered_measurements[-n_meas:])).squeeze().reshape(-1, 2)
             gradient = np.append(gradient, gradient_calculation / np.linalg.norm(gradient_calculation), axis=0)
             filtered_gradient = np.append(filtered_gradient, filtered_gradient[[-2], :]*alpha + gradient[[-1], :]*(1-alpha), axis=0)
 
@@ -148,17 +148,18 @@ def main(args):
 
     ############################################# END OF CYCLE ###################################
 
-    parseh5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,control_law,t_idx,delta_ref,time_step,meas_per)
+    parseh5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,alpha_seek,t_idx,delta_ref,time_step,meas_per)
 
     # Call plotter class
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], filtered_gradient, filtered_measurements, chl_ref, meas_per, time_step)
+    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], filtered_gradient, filtered_measurements, chl_ref, meas_per, time_step, alpha_seek)
     extension = 'png'
 
     ############################################ PRINTS
     # Attributes and length os variables
     print("delta_ref :", chl_ref)
     print("time_step :", time_step)
-    print("meas_per :", meas_per)
+    print("meas_per :", meas_per)    
+    print("alpha_seek :", alpha_seek)
     print('len(position) ', len(position[:, 0])-1, ' len(grad) ', len(gradient[:, 0]), ' len(measurements) ', len(measurements))
     
     # Average speed
@@ -168,8 +169,8 @@ def main(args):
         distances_between_samples = np.append(distances_between_samples,distance)
     print("Average speed: {} m/s".format(np.mean(distances_between_samples)))
 
-    ############################################ PLOTS
-    # Create zoom 1 square
+     ############################################ PLOTS
+    # Zoom 1 square
     lat_start1 = 61.525
     lat_end1 = 61.56
     lon_start1 = 21.1
@@ -180,58 +181,46 @@ def main(args):
     fig_trajectory.savefig("plots/{}.{}".format("big_map",extension),bbox_inches='tight')
     
     ######################## ZOOM 1
-    # Create zoom 1 time
-    zoom_start1 = 15500
-    zoom_end1 = 26000
-
     #c) Gradient zoom1
-    fig_gradient = plotter.gradient_comparison(zoom_start1, zoom_end1)
+    fig_gradient = plotter.gradient_comparison()
     fig_gradient.savefig("plots/{}.{}".format("gradient",extension),bbox_inches='tight')
 
     #d) Chl zoom1
     fig_chl = plotter.chl_comparison()
     fig_chl.savefig("plots/{}.{}".format("measurements",extension),bbox_inches='tight', dpi=300)
 
-    # Create zoom 2 square
-    lon_start2 = 21.113
-    lon_end2 = 21.123
-    lat_start2 = 61.527 
-    lat_end2 = 61.532
-    # Create zoom 3 square
-    lon_start3 = 21.154
-    lon_end3 = 21.164
-    lat_start3 = 61.547
-    lat_end3 = 61.552
+    # Zoom 2 square
+    lon_start2 = 21.142
+    lon_end2 = 21.152
+    lat_start2 = 61.534  
+    lat_end2 = 61.539
+    # Zoom 3 square
+    lon_start3 = 21.11
+    lon_end3 = 21.12
+    lat_start3 = 61.55
+    lat_end3 = 61.555
 
-    #b) Zoom1 map with gradient
+    # b) Zoom1 map with gradient
     fig_zoom_gradient = plotter.zoom1(lon_start2,lon_end2,lat_start2,lat_end2,lon_start3,lon_end3,lat_start3,lat_end3)
     fig_zoom_gradient.savefig("plots/{}.{}".format("zoom1_map",extension),bbox_inches='tight')
 
-    ######################## ZOOM 2
-    # Create zoom 2 time
-    zoom_start2 = 15890
-    zoom_end2 = 16920
-
+    ####################### ZOOM 2
     #f) Control law zoom2
-    fig_control = plotter.control_input(zoom_start2, zoom_end2)
-    fig_control.savefig("plots/{}.{}".format("control",extension),bbox_inches='tight')
+    fig_control = plotter.control_input(2)
+    fig_control.savefig("plots/{}.{}".format("control2",extension),bbox_inches='tight')
 
     #e) Zoom 2 map with control law 
     fig_zoom_control = plotter.zoom2(lon_start2,lon_end2,lat_start2,lat_end2)
     fig_zoom_control.savefig("plots/{}.{}".format("zoom2_map",extension),bbox_inches='tight', dpi=300)
 
-    ######################## ZOOM 3
-    # Create zoom 3 time 
-    zoom_start3 = 21400
-    zoom_end3 = 22440
-
+    # ######################## ZOOM 3
     #h) Control law zoom 3
-    fig_control = plotter.control_input(zoom_start3, zoom_end3)
-    fig_control.savefig("plots/{}.{}".format("control",extension),bbox_inches='tight')
+    fig_control = plotter.control_input(3)
+    fig_control.savefig("plots/{}.{}".format("control3",extension),bbox_inches='tight')
 
     #g) Zoom 3 map with control law 
     fig_zoom_control = plotter.zoom2(lon_start3,lon_end3,lat_start3,lat_end3)
-    fig_zoom_control.savefig("plots/{}.{}".format("zoom2_map",extension),bbox_inches='tight', dpi=300)
+    fig_zoom_control.savefig("plots/{}.{}".format("zoom3_map",extension),bbox_inches='tight', dpi=300)
 
     plt.show()
 

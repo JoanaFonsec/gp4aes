@@ -21,6 +21,6 @@ def LSQ_estimation(x, y):
 
     y = y.reshape(-1,1)
 
-    alpha, beta, delta_zero = np.linalg.lstsq(A, y, rcond=None)[0].squeeze()
+    gradient_x, gradient_y, delta_zero = np.linalg.lstsq(A, y, rcond=None)[0].squeeze()
 
-    return alpha, beta
+    return gradient_x, gradient_y

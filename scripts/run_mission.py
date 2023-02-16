@@ -134,7 +134,7 @@ def main(args):
 
     print("Time taken for the estimation:", end-start)
 
-    h5parse.write_results(args.out_path,position,chl,lon,lat,time_sim,measurements,filtered_gradient,control_law,t_idx,delta_ref,time_step,meas_per)
+    h5parse.write_results(args.out_path,position,chl,lon,lat,time_sim,measurements,filtered_gradient,alpha_seek,t_idx,delta_ref,time_step,meas_per)
 
 if __name__ == "__main__":
     args = parse_args()

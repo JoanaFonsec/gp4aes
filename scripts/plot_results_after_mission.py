@@ -44,15 +44,17 @@ def main(args):
         time_step = f.attrs["time_step"]
         meas_per = f.attrs["meas_per"]
         t_idx = f.attrs["t_idx"]
+        alpha_seek = f.attrs["alpha_seek "]
 
     # Call plotter class
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, meas_per, time_step)
+    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, meas_per, time_step, alpha_seek)
 
     ############################################ PRINTS
     # Attributes and length os variables
     print("delta_ref :", chl_ref)
     print("time_step :", time_step)
     print("meas_per :", meas_per)
+    print("alpha_seek :", alpha_seek)
     print('len(position) ', len(position[:, 0])-1, ' len(grad) ', len(gradient[:, 0]), ' len(measurements) ', len(measurements))
     
     # Average speed

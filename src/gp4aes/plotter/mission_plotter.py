@@ -27,13 +27,14 @@ class HandlerArrow(HandlerPatch):
 
 ###################################### Class plotter
 class Plotter:
-    def __init__(self, position, lon, lat, chl, gradient, measurements, chl_ref, meas_per, time_step):
+    def __init__(self, position, lon, lat, chl, gradient, measurements, chl_ref, meas_per, time_step, alpha_seek):
         self.lon = lon
         self.lat = lat
         self.lat = lat
         self.chl = chl
         self.chl_ref = chl_ref
         self.meas_per = meas_per
+        self.alpha_seek = alpha_seek
 
         # Trim zeros and last entry so that all meas/grads are matched
         position = position[:-1,:]
@@ -307,11 +308,10 @@ class Plotter:
             zoom_end = self.zoom3_end
 
         # Determine control seek and follow
-        alpha_seek = 50
         alpha_follow = 1
         chl_error = (self.chl_ref* np.ones(self.measurements.shape[0]) - self.measurements)
         self.control_follow = alpha_follow * np.ones(self.measurements.shape[0])
-        self.control_seek = alpha_seek * chl_error 
+        self.control_seek = self.alpha_seek * chl_error 
 
         for index in range(self.control_follow.shape[0]):
             total_control = [self.control_follow[index], self.control_seek[index]]
