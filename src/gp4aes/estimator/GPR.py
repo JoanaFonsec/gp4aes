@@ -8,7 +8,7 @@ import multiprocessing as mp
 from pyDOE import lhs
 
 class GPEstimator:
-    def __init__(self, kernel, s, range_m, params=None, earth_radius=6369345):
+    def __init__(self, kernel, s, params=None):
         if not (kernel == 'RQ' or kernel == 'MAT'):
             raise ValueError("Invalid kernel. Choices are RQ or MAT.")
 
@@ -26,12 +26,8 @@ class GPEstimator:
                 self.__kernel = gp.kernels.ConstantKernel(44.29588721)*gp.kernels.Matern(length_scale=[0.54654887, 0.26656638])
 
         self.__kernel_name = kernel
-
         self.s = s
         self.__model = gp.GaussianProcessRegressor(kernel=self.__kernel, optimizer=None, alpha=self.s**2)
-
-        # Estimation range where to predict values
-        self.range_deg = range_m / (np.radians(1.0) * earth_radius)
 
 
     """

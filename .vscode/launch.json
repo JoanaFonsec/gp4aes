@@ -33,5 +33,15 @@
                      "MAT", "3", "--clipped_area", "61.412", "61.80", "20.771", "21.31"], 
             "justMyCode": true
         },
+        {
+            "name": "Full Run",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["datasets/finland_forecast_14_04_17_04.nc", "datasets/finland_ocean_color_14_04_17_04.nc",
+                     "config/finland_lres.json", "config/finland_hres.json", "results/finland_complete_mission.h5", "GP"], 
+            "justMyCode": true
+        },
     ]
 }
