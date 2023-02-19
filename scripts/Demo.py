@@ -1,4 +1,3 @@
-
 import numpy as np
 from argparse import ArgumentParser
 import matplotlib.pyplot as plt
@@ -57,17 +56,16 @@ def main(args):
         n_days = 3
         offset = 1
         clipped_area = np.array([61.412, 61.80, 20.771, 21.31])
-        std = 100 * 1e-3
         kernel_name = 'MAT'
 
         # kernel_params = gpr.train_GP_model(lres_data.chl, lres_data.lat, lres_data.lon, s, N, N_meas, n, n_days, t_idx, offset, clipped_area, kernel_name)
         kernel_params = np.array([44.29588721, 0.54654887, 0.26656638])
-        est = gpr.GPEstimator(kernel_name, std, kernel_params)
+        est = gpr.GPEstimator(kernel_name, s, kernel_params)
 
     ######################################### RUN MISSION
 
     ## DYNAMICS
-    alpha_seek = 30
+    alpha_seek = 50
     alpha_follow = 1
     delta_ref = 7.45
     speed = 1.0 # 1m/s
@@ -81,9 +79,9 @@ def main(args):
     meas_per = 1 # measurement period
     chl_ref = 7.45
     n_iter = int(3e5) # 3e5
-    n_meas = 125
+    n_meas = 20 # GP: 200, LSQ: 20
     meas_filter_len = 3 # 3
-    alpha = 0.95 # Gradient update factor, 0.95
+    alpha = 0.97 # Gradient update factor, 0.95
     weights_meas = [0.2, 0.3, 0.5]
     init_flag = True
 
@@ -97,7 +95,6 @@ def main(args):
     filtered_measurements = np.empty((0, init_coords.shape[1]))
     filtered_gradient = np.empty((0, init_coords.shape[1]))
     control_law = np.empty((0, init_coords.shape[1]))
-
     position = np.append(position, init_coords, axis=0)
 
     ####################################### CYCLE ######################################################
@@ -215,14 +212,14 @@ def main(args):
     fig_zoom_control = plotter.zoom2(lon_start2,lon_end2,lat_start2,lat_end2)
     fig_zoom_control.savefig("plots/{}.{}".format("zoom2_map",extension),bbox_inches='tight', dpi=300)
 
-    # # ######################## ZOOM 3
-    # #h) Control law zoom 3
-    # fig_control = plotter.control_input(3)
-    # fig_control.savefig("plots/{}.{}".format("control3",extension),bbox_inches='tight')
+    # ######################## ZOOM 3
+    #h) Control law zoom 3
+    fig_control = plotter.control_input(3)
+    fig_control.savefig("plots/{}.{}".format("control3",extension),bbox_inches='tight')
 
-    # #g) Zoom 3 map with control law 
-    # fig_zoom_control = plotter.zoom2(lon_start3,lon_end3,lat_start3,lat_end3)
-    # fig_zoom_control.savefig("plots/{}.{}".format("zoom3_map",extension),bbox_inches='tight', dpi=300)
+    #g) Zoom 3 map with control law 
+    fig_zoom_control = plotter.zoom2(lon_start3,lon_end3,lat_start3,lat_end3)
+    fig_zoom_control.savefig("plots/{}.{}".format("zoom3_map",extension),bbox_inches='tight', dpi=300)
 
     plt.show()
 
