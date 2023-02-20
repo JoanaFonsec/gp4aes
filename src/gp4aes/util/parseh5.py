@@ -140,7 +140,7 @@ def write_data(path, data):
         ds = f.create_dataset("lon", data=data.lon)
         ds.attrs.create("units", np.string_("degrees_east"))
 
-def write_results(out_path,traj,chl,lon,lat,time,measurement,gradient,control_law,t_idx,delta_ref,time_step,meas_per):
+def write_results(out_path,traj,chl,lon,lat,time,measurement,gradient,control_law,t_idx,delta_ref,time_step,meas_per, alpha_seek):
     print("Writing results to %s..." % (out_path))
 
     with h5.File(out_path, 'w') as f:
@@ -156,6 +156,7 @@ def write_results(out_path,traj,chl,lon,lat,time,measurement,gradient,control_la
         f.attrs.create("delta_ref", data=delta_ref)
         f.attrs.create("time_step", data=time_step)
         f.attrs.create("meas_per", data=meas_per)
+        f.attrs.create("alpha_seek", data=alpha_seek)
 
 def add_land_mask(path):
     print("Adding land_mask...")

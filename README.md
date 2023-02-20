@@ -58,39 +58,3 @@ To plot the results after the mission:
 ```
 poetry run python scripts/plot_results_after_mission.py results/finland_complete_mission.h5
 ```
-
-### Data Assimilation
-Predict chl-_a_ concentration with Low Resolution dataset:
-```
-poetry run python gpr/gpr_interp.py out/finland_lres_forecast.h5 1618653600 MAT --kernel_params 44.29588721 0.54654887 0.26656638
-```
-
-Compute average relative error compared to ground truth:
-```
-poetry run python util/compare_data.py out/finland_hres_oceancolor.h5 out/finland_lres_forecast.h5
-```
-
-Compute trajectory without measurement error (tuning of some parameters has to be hardcoded):
-```
-poetry run python control/sim_gpr.py out/finland_hres_oceancolor.h5 out/traj_finland_hres_oceancolor.h5 1618610399 MAT --std 0.00001
-```
-
-Predict chl-_a_ concentration with LR dataset together with the computed trajectory:
-- If a fixed standard deviation is to be used for scattered data:
-```
-poetry run python gpr_tests/gpr_augmented.py out/finland_lres_forecast.h5 out/traj_finland_hres_oceancolor.h5 1618653600 MAT --kernel_params 44.29588721 0.54654887 0.26656638
-```
-
-- Conversely, if the standard deviation of the scattered data is to be linear with the distance to the trajectory:
-```
-poetry run python gpr_tests/gpr_augmented.py out/finland_lres_forecast.h5 out/traj_finland_hres_oceancolor.h5 1618653600 MAT --kernel_params 44.29588721 0.54654887 0.26656638 --cont_std
-```
-
-Repeat average relative error computations:
-```
-poetry run python util/compare_data.py out/finland_hres_oceancolor.h5 out/finland_lres_forecast.h5`
-```
-For visual inspection, plot the predicted mean:
-```
-poetry run python util/plot_gp.py out/finland_lres_forecast.h5
-```

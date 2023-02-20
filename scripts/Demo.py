@@ -67,9 +67,9 @@ def main(args):
     ## DYNAMICS
     alpha_seek = 50
     alpha_follow = 1
-    delta_ref = 7.45
+    chl_ref = 7.45
     speed = 1.0 # 1m/s
-    dynamics = controller.Dynamics(alpha_seek, alpha_follow, delta_ref, speed)
+    dynamics = controller.Dynamics(alpha_seek, alpha_follow, chl_ref, speed)
     t_idx = np.argmin(np.abs(timestamp - time))
 
     ## SETTINGS
@@ -77,7 +77,7 @@ def main(args):
     init_coords = np.array([[20.925, 61.492]])
     time_step = 1
     meas_per = 1 # measurement period
-    chl_ref = 7.45
+    
     n_iter = int(3e5) # 3e5
     n_meas = 20 # GP: 200, LSQ: 20
     meas_filter_len = 3 # 3
@@ -94,7 +94,6 @@ def main(args):
     measurements = np.empty((0))
     filtered_measurements = np.empty((0, init_coords.shape[1]))
     filtered_gradient = np.empty((0, init_coords.shape[1]))
-    control_law = np.empty((0, init_coords.shape[1]))
     position = np.append(position, init_coords, axis=0)
 
     ####################################### CYCLE ######################################################
@@ -113,7 +112,7 @@ def main(args):
             measurements = np.append(measurements, val)
 
         ##### Init state - From beginning until 5% tolerance from front
-        if (i < n_meas or measurements[-1] < 0.95*dynamics.delta_ref) and init_flag is True:
+        if (i < n_meas or measurements[-1] < 0.95*chl_ref) and init_flag is True:
             gradient = init_heading[[0], :2] / np.linalg.norm(init_heading[0, :2])
             filtered_gradient = np.append(filtered_gradient, gradient, axis=0)
             filtered_measurements = np.append(filtered_measurements,measurements[-1])
@@ -136,7 +135,6 @@ def main(args):
 
         ##### Calculate next position
         control = dynamics(filtered_measurements[-1], filtered_gradient[-1,:], include_time=False)
-        control_law = np.append(control_law, control.reshape((-1,2)), axis=0)
         next_position = controller.next_position(position[-1, :],control)
         position = np.append(position, next_position, axis=0)
 
@@ -148,7 +146,7 @@ def main(args):
 
     ############################################# END OF CYCLE ###################################
 
-    parseh5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,alpha_seek,t_idx,delta_ref,time_step,meas_per)
+    parseh5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,alpha_seek,t_idx,chl_ref,time_step,meas_per, alpha_seek)
 
     # Call plotter class
     plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], filtered_gradient, filtered_measurements, chl_ref, meas_per, time_step, alpha_seek)
