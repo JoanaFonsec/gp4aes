@@ -42,7 +42,7 @@ class Plotter:
 
         # Get start and end time from arguments
         self.start_time = 0
-        self.end_time = time_step*(len(position[:, 0])-2)/3600.0
+        self.end_time = time_step*(len(gradient[:, 0])-2)/3600.0
 
         # Determine start and stop indexes for the mission period
         self.idx_start = int(3600.0 / time_step / self.meas_per * self.start_time)
