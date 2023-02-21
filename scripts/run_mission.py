@@ -25,7 +25,7 @@ def main(args):
     ## VARIABLES
     earth_radius = 6369345
     timestamp = 1618610399
-    s = 1e-3 
+    s = 10 * 1e-3 
 
     ## READ DATASETS
     config_lres_data = parseh5.parse_config_file(args.lres_config_path)

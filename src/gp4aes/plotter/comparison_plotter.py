@@ -1,4 +1,5 @@
 import numpy as np
+from math import acos
 import matplotlib.pyplot as plt
 from scipy.interpolate import RegularGridInterpolator
 
@@ -74,8 +75,8 @@ class Plotter:
             ground_truth1[i, 1] = everywhere_gradient[1]((self.position1[x,0], self.position1[x,1]))
             ground_truth2[i, 0] = everywhere_gradient[0]((self.position2[x,0], self.position2[x,1]))
             ground_truth2[i, 1] = everywhere_gradient[1]((self.position2[x,0], self.position2[x,1]))            
-            error1[i] = np.dot(self.gradient1[i], ground_truth1[i]) / (np.linalg.norm(self.gradient1[i]) * np.linalg.norm(ground_truth1[i]))
-            error2[i] = np.dot(self.gradient2[i], ground_truth2[i]) / (np.linalg.norm(self.gradient2[i]) * np.linalg.norm(ground_truth2[i]))
+            error1[i] = acos(np.dot(self.gradient1[i], ground_truth1[i]) / (np.linalg.norm(self.gradient1[i]) * np.linalg.norm(ground_truth1[i])))
+            error2[i] = acos(np.dot(self.gradient2[i], ground_truth2[i]) / (np.linalg.norm(self.gradient2[i]) * np.linalg.norm(ground_truth2[i])))
         print("Average gradient error for GP: {}".format(np.mean(abs(error1))), "Average gradient error for LSQ: {}".format(np.mean(abs(error2))))
 
         # Plot gradient angle
@@ -86,7 +87,7 @@ class Plotter:
         plt.ylabel('Gradient [rad]')
         plt.legend(loc=4, shadow=True)
         plt.grid(True)
-        plt.axis([self.start_time, self.end_time, -1, 1.1])
+        plt.axis([self.start_time, self.end_time, 0, 3])
 
         return fig
 
