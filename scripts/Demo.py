@@ -65,7 +65,7 @@ def main(args):
     ######################################### RUN MISSION
 
     ## DYNAMICS
-    alpha_seek = 50
+    alpha_seek = 20
     alpha_follow = 1
     chl_ref = 7.45
     speed = 1.0 # 1m/s
@@ -79,11 +79,12 @@ def main(args):
     meas_per = 1 # measurement period
     
     n_iter = int(3e5) # 3e5
-    n_meas = 20 # GP: 200, LSQ: 20
+    
     meas_filter_len = 3 # 3
     alpha = 0.97 # Gradient update factor, 0.95
     weights_meas = [0.2, 0.3, 0.5]
     init_flag = True
+    n_meas = 150 if args.estimator == 'GP' else 20 # GP: 200, LSQ: 20
 
     ## INIT FUNCTIONS
     field = RegularGridInterpolator((lon, lat), chl[:,:,t_idx])
@@ -146,10 +147,10 @@ def main(args):
 
     ############################################# END OF CYCLE ###################################
 
-    parseh5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,alpha_seek,t_idx,chl_ref,time_step,meas_per, alpha_seek)
+    parseh5.write_results(args.out_path,position,measurements,filtered_gradient,chl,lon,lat,time,t_idx,chl_ref,time_step,meas_per, alpha_seek)
 
     # Call plotter class
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], filtered_gradient, filtered_measurements, chl_ref, meas_per, time_step, alpha_seek)
+    plotter = plot_mission.Plotter(position, filtered_gradient, filtered_measurements, lon, lat, chl[:,:,t_idx], chl_ref, meas_per, time_step, alpha_seek)
     extension = 'png'
 
     ############################################ PRINTS

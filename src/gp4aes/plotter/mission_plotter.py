@@ -27,7 +27,7 @@ class HandlerArrow(HandlerPatch):
 
 ###################################### Class plotter
 class Plotter:
-    def __init__(self, position, lon, lat, chl, gradient, measurements, chl_ref, meas_per, time_step, alpha_seek):
+    def __init__(self, position, gradient, measurements, lon, lat, chl, chl_ref, meas_per, time_step, alpha_seek):
         self.lon = lon
         self.lat = lat
         self.lat = lat

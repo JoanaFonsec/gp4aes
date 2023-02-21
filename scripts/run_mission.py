@@ -1,16 +1,11 @@
 import numpy as np
 from argparse import ArgumentParser
-import matplotlib.pyplot as plt
-import geopy.distance
 from scipy.interpolate import RegularGridInterpolator
 
 import gp4aes.util.parseh5 as parseh5
 import gp4aes.estimator.GPR as gpr
 from gp4aes.estimator.LSQ import LSQ_estimation
 import gp4aes.controller.front_tracking as controller
-import gp4aes.plotter.mission_plotter as plot_mission
-
-
 
 def parse_args():
     parser = ArgumentParser()
@@ -67,7 +62,7 @@ def main(args):
     ######################################### RUN MISSION
 
     ## DYNAMICS
-    alpha_seek = 50
+    alpha_seek = 40
     alpha_follow = 1
     chl_ref = 7.45
     speed = 1.0 # 1m/s
@@ -80,7 +75,7 @@ def main(args):
     time_step = 1
     meas_per = 1 # measurement period
     n_iter = int(3e5) # 3e5
-    n_meas = 20 # GP: 200, LSQ: 20
+    n_meas = 150 if args.estimator == 'GP' else 20 # GP: 200, LSQ: 20
     meas_filter_len = 3 # 3
     alpha = 0.97 # Gradient update factor, 0.95
     weights_meas = [0.2, 0.3, 0.5]
@@ -147,7 +142,7 @@ def main(args):
 
     ############################################# END OF CYCLE ###################################
 
-    parseh5.write_results(args.out_path,position,chl,lon,lat,time,measurements,filtered_gradient,alpha_seek,t_idx,chl_ref,time_step,meas_per, alpha_seek)
+    parseh5.write_results(args.out_path,position,measurements,filtered_gradient,chl,lon,lat,time,t_idx,chl_ref,time_step,meas_per,alpha_seek)
 
 
 if __name__ == "__main__":

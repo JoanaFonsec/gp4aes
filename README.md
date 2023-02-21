@@ -11,7 +11,7 @@ poetry install
 
 2. Run the demo script:
 ```
-poetry run python scripts/DEMO.py datasets/finland_forecast_14_04_17_04.nc datasets/finland_ocean_color_14_04_17_04.nc config/finland_lres.json config/finland_hres.json results/finland_complete_mission.h5
+poetry run python scripts/DEMO.py datasets/finland_forecast_14_04_17_04.nc datasets/finland_ocean_color_14_04_17_04.nc config/finland_lres.json config/finland_hres.json results/LSQ_mission.h5 LSQ
 ```
 
 ## Try each Submodule
@@ -51,10 +51,10 @@ Remark: _This step is not needed to run the trajectory script_.
 ### Compute trajectory
 Compute trajectory based on the Gaussian Process estimation algorithm:
 ```
-poetry run python scripts/run_mission.py results/finland_hres.h5 results/finland_complete_mission.h5 1618610399 MAT --kernel_params 44.29588721 0.54654887 0.26656638
+poetry run python scripts/run_mission.py datasets/finland_forecast_14_04_17_04.nc datasets/finland_ocean_color_14_04_17_04.nc config/finland_lres.json config/finland_hres.json results/GP_mission.h5 GP
 ```
 
 To plot the results after the mission:
 ```
-poetry run python scripts/plot_results_after_mission.py results/finland_complete_mission.h5
+poetry run python scripts/plot_results_after_mission.py results/GP_mission.h5
 ```

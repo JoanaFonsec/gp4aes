@@ -41,10 +41,10 @@ def main(args):
         time_step = f.attrs["time_step"]
         meas_per = f.attrs["meas_per"]
         t_idx = f.attrs["t_idx"]
-        alpha_seek = f.attrs["alpha_seek "]
+        alpha_seek = f.attrs["alpha_seek"]
 
     # Call plotter class
-    plotter = plot_mission.Plotter(position, lon, lat, chl[:,:,t_idx], gradient, measurements, chl_ref, meas_per, time_step, alpha_seek)
+    plotter = plot_mission.Plotter(position, gradient, measurements, lon, lat, chl[:,:,t_idx], chl_ref, meas_per, time_step, alpha_seek)
 
     ############################################ PRINTS
     # Attributes and length os variables
