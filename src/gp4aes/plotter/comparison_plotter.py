@@ -20,7 +20,7 @@ class Plotter:
         self.lat = lat
         self.chl = chl
         self.chl_ref = chl_ref
-        self.meas_per = meas_per
+        self.meas_per = int(meas_per)
 
         # Trim zeros and last entry so that all meas/grads are matched
         position1 = position1[:-1,:]
