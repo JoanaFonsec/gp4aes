@@ -16,6 +16,7 @@ scipy = "^1.9.3"
 matplotlib = "^3.6.2"
 geopy = "^2.3.0"
 netcdf4 = "^1.6.2"
+scienceplots = "^2.0.1"
 
 [build-system]
 requires = ["poetry-core"]
