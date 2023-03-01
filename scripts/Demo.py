@@ -65,7 +65,7 @@ def main(args):
     ######################################### RUN MISSION
 
     ## DYNAMICS
-    alpha_seek = 20
+    alpha_seek = 40
     alpha_follow = 1
     chl_ref = 7.45
     speed = 1.0 # 1m/s
@@ -135,7 +135,7 @@ def main(args):
             filtered_gradient = np.append(filtered_gradient, filtered_gradient[[-1], :]*alpha + gradient*(1-alpha), axis=0)
 
         ##### Calculate next position
-        control = dynamics(filtered_measurements[-1], filtered_gradient[-1,:], include_time=False)
+        control = dynamics(filtered_measurements, filtered_gradient, include_time=False)
         next_position = controller.next_position(position[-1, :],control)
         position = np.append(position, next_position, axis=0)
 

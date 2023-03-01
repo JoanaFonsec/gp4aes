@@ -25,7 +25,7 @@ def main(args):
     ## VARIABLES
     earth_radius = 6369345
     timestamp = 1618610399
-    s = 10 * 1e-3 
+    s = 500 * 1e-3 
 
     ## READ DATASETS
     config_lres_data = parseh5.parse_config_file(args.lres_config_path)
@@ -57,7 +57,7 @@ def main(args):
 
         # kernel_params = gpr.train_GP_model(lres_data.chl, lres_data.lat, lres_data.lon, s, N, N_meas, n, n_days, t_idx, offset, clipped_area, kernel_name)
         kernel_params = np.array([44.29588721, 0.54654887, 0.26656638])
-        est = gpr.GPEstimator(kernel_name, s, kernel_params)
+        est = gpr.GPEstimator(kernel_name, 1e-3, kernel_params)
 
     ######################################### RUN MISSION
 

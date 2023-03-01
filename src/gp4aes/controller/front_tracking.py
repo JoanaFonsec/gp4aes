@@ -10,10 +10,19 @@ class Dynamics:
         self.speed = speed
 
     def __call__(self, delta, grad, include_time=False):
-        self.u_x = self.alpha_seek*(self.delta_ref - delta)*grad[0] \
-                            - self.alpha_follow*grad[1]
-        self.u_y = self.alpha_seek*(self.delta_ref - delta)*grad[1] \
-                            + self.alpha_follow*grad[0]
+        kp = -1
+        # if (len(grad) == 1):
+        #     derivative_component = [0, 0]
+        # else:
+        #     derivative_component =  kp *(grad[-1,:]-grad[-2,:])
+        if (len(grad) == 1):
+            derivative_component = 0
+        else:
+            derivative_component =  kp *(delta[-1]-delta[-2])
+        self.u_x = self.alpha_seek*(self.delta_ref - delta[-1]+ derivative_component)*grad[-1,0] \
+                            - self.alpha_follow*grad[-1,1]
+        self.u_y = self.alpha_seek*(self.delta_ref - delta[-1]+ derivative_component)*grad[-1,1] \
+                            + self.alpha_follow*grad[-1,0] 
 
         u = np.array([self.u_x, self.u_y])
         if include_time is False:
